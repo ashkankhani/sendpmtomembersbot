@@ -6,8 +6,9 @@ from time import sleep
 #pyrogram.errors.exceptions.bad_request_400.UsernameInvalid: [400 USERNAME_INVALID]: The username is invalid (caused by "contacts.ResolveUsername
 #pyrogram.errors.exceptions.bad_request_400.UserAlreadyParticipant: [400 USER_ALREADY_PARTICIPANT]: The user is already a participant of this chat (caused by "messages.ImportChatInvite"
 #pyrogram.errors.exceptions.flood_420.FloodWait [420 FLOOD_WAIT_X]
-LINK = 'project_gp_nahad'
+LINK = 'https://t.me/project_gp_nahad'
 TEXT = 'سلام'
+MAX_SEND_PER_SESSION = 1
 
 
 
@@ -31,32 +32,40 @@ def get_session_list():
 
 
 def get_group_members(session,group_id):
-    member_list = []
-    with Client(session) as app:
-        members_logs = app.iter_chat_members(chat_id = group_id)
-        for member in members_logs:
-            member_list.append(member.user.id)
+    print(group_id)
+    with open('usernames.txt' , 'w') as f:
+        with Client(session) as app:
+            members_logs = app.iter_chat_members(chat_id = group_id,limit = 2)
+            for member in members_logs:
+                print(member.user.first_name)
+                f.write(f'{member.user.id}\n')
+                #member_list.append(member.user.id)
 
-    return member_list
+    #return member_list
         
         
     
 
 
 
-def join_chat(session_list,link):
-    res = re.findall(r'^.*t\.me/(\w*)$',link)
+def join_chat(session_list):
+    
+   
+    res = re.findall(r'^.*t\.me/(\w*)$',LINK)
+
     if(len(res)):
         link = res[0]
+
     for session in session_list:
         with Client(session) as app:
             try:
                 join = app.join_chat(link)
+                id = join.id
             except BadRequest as e:
-                id = e.ID
-                if(id == 'USERNAME_INVALID'):
+                e_id = e.ID
+                if(e_id == 'USERNAME_INVALID'):
                     print('link eshtebah ast!')
-                elif(id == 'UserAlreadyParticipant'):
+                elif(e_id == 'USER_ALREADY_PARTICIPANT'):
                     print(f'karbare {session} dar grouh az ghabl bood!')
             except FloodWait as e:
                 sleep_time = e.x
@@ -66,16 +75,46 @@ def join_chat(session_list,link):
                 print('error')
             else:
                 print(f'{session} be grouh add shod!')
-
     
 
-    return join.id
+
+
+        
+        return id
+                
+
+    
+    
+    
+
+def send_message_to_members(session_list):
+    with open('usernames.txt' , 'r+') as f:
+        user_ids = f.readlines()
+        for session in session_list:
+            with Client(session) as app:
+                tedad = 0 #==> tedade bedon=one error
+                for i in range(0,MAX_SEND_PER_SESSION):
+                    user_id = user_ids[i].replace('\n' , '')
+                    app.send_message(chat_id = user_id , text = TEXT)
+                    tedad += 1
+
+            f.seek(0)
+            f.truncate()
+            f.writelines(user_ids[tedad:])
+
 
 
 session_list = get_session_list()
-group_id = join_chat(session_list,LINK)
-group_members = get_group_members(session_list[0] ,group_id)
-print(group_members)
+try:
+    group_id = join_chat(session_list)
+except UnboundLocalError:
+    print('dar join shodan moshkeli vojood darad....\nlotfan barasi konid!')
+else:
+    get_group_members(session_list[0] ,group_id)
+
+send_message_to_members(session_list)
+
+#print(group_members)
 
 
 
