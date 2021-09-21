@@ -9,7 +9,9 @@ from time import sleep
 
 LINK = 'https://t.me/joinchat/8cEvVi1qCzM2NDVk'
 TEXT = 'سلام'
-MAX_SEND_PER_SESSION = 2
+MAX_SEND_PER_SESSION = 1
+
+
 
 
 
@@ -33,16 +35,14 @@ def get_session_list():
 
 
 def get_group_members(session,group_id):
-    print(group_id)
     with open('usernames.txt' , 'w') as f:
         with Client(session) as app:
             members_logs = app.iter_chat_members(chat_id = group_id)
+        
             for member in members_logs:
-                if(not member.user.is_bot):
-                    f.write(f'{member.user.id}\n')
-                #member_list.append(member.user.id)
+                if(not member.user.is_bot and member.user.username):
+                    f.write(f'{member.user.username}\n')
 
-    #return member_list
         
         
     
@@ -90,34 +90,39 @@ def join_chat(session_list,link):
 
 def send_message_to_members(session_list,text,max_send):
     with open('usernames.txt' , 'r+') as f:
-        user_ids = f.readlines()
+        user_names = f.readlines()
         for session in session_list:
             with Client(session) as app:
                 tedad = 0 #==> tedade bedon=one error
                 for i in range(0,max_send):
-                    user_id = user_ids[i].replace('\n' , '')
-                    app.send_message(chat_id = user_id , text = text)
-                    print(user_id)
+                    user_name = user_names[i].replace('\n' , '')
+                    app.send_message(chat_id = user_name , text = text)
                     tedad += 1
 
             f.seek(0)
             f.truncate()
-            f.writelines(user_ids[tedad:])
+            f.writelines(user_names[tedad:])
 
 
 
 session_list = get_session_list()
-#group_id = join_chat(session_list,LINK)
-try:
-    group_id = join_chat(session_list,LINK)
-except UnboundLocalError:
-    print('dar join shodan moshkeli vojood darad....\nlotfan barasi konid!')
-else:
-    get_group_members(session_list[0] ,group_id)
 
-send_message_to_members(session_list,TEXT,MAX_SEND_PER_SESSION)
 
-#print(group_members)
+while(True):
+    gozine = input('''yek gozine entekhab konid:
+1.join + jam avari id ha
+2.ersal pm be hame afrad
+''')
+    if(gozine=='1'):
+        try:
+            group_id = join_chat(session_list,LINK)
+        except UnboundLocalError:
+            print('dar join shodan moshkeli vojood darad....\nlotfan barasi konid!')
+        else:
+            get_group_members(session_list[0] ,group_id)
+    if(gozine=='2'):
+        send_message_to_members(session_list,TEXT,MAX_SEND_PER_SESSION)
+
 
 
 
