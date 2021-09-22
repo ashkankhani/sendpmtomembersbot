@@ -9,7 +9,7 @@ from time import sleep
 
 LINK = 'https://t.me/joinchat/8cEvVi1qCzM2NDVk'
 TEXT = 'سلام'
-MAX_SEND_PER_SESSION = 10
+MAX_SEND_PER_SESSION = 1
 
 
 
@@ -102,9 +102,20 @@ def send_message_to_members(session_list,text,max_send):
                 tedad = 0 #==> tedade bedon error
                 for i in range(0,b):
                     user_name = user_names[i].replace('\n' , '')
-                    app.send_message(chat_id = user_name , text = text)
-                    print(f'{session} ====> be {user_name} pm dad!')
-                    tedad += 1
+                    try:
+                        app.send_message(chat_id = user_name , text = text)
+                    except BadRequest as e:
+                        if(e.ID == 'PEER_FLOOD'):
+                            print(f'accounte {session} report shod!')
+                    except FloodWait as e:
+                        sleep_time = e.x
+                        print(f'{sleep_time} sanie esterahat baraye accounte {session}...')
+                        sleep(sleep_time)
+                    except:
+                        print('error na maloom!')
+                    else:
+                        print(f'{session} ====> be {user_name} pm dad!')
+                        tedad += 1
             user_names = user_names[tedad:]
             f.seek(0)
             f.truncate()
