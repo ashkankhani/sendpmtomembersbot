@@ -9,7 +9,7 @@ from time import sleep
 
 LINK = 'https://t.me/joinchat/8cEvVi1qCzM2NDVk'
 TEXT = 'سلام'
-MAX_SEND_PER_SESSION = 1
+MAX_SEND_PER_SESSION = 10
 
 
 
@@ -33,6 +33,7 @@ def get_session_list():
 
     return session_list
 
+print(get_session_list())
 
 def get_group_members(session,group_id):
     with open('usernames.txt' , 'w') as f:
@@ -90,21 +91,24 @@ def join_chat(session_list,link):
 
 def send_message_to_members(session_list,text,max_send):
     with open('usernames.txt' , 'r+') as f:
+        user_names = f.readlines()
         for session in session_list:
-            user_names = f.readlines()
+            print(session)
             b = len(user_names) #==>mahdoode
             if(max_send < b):
-                b = max_send    #tanzim ro maximum
+                b = max_send  
+            print(b)  #tanzim ro maximum
             with Client(session) as app:
                 tedad = 0 #==> tedade bedon error
                 for i in range(0,b):
                     user_name = user_names[i].replace('\n' , '')
                     app.send_message(chat_id = user_name , text = text)
+                    print(f'{session} ====> be {user_name} pm dad!')
                     tedad += 1
-
+            user_names = user_names[tedad:]
             f.seek(0)
             f.truncate()
-            f.writelines(user_names[tedad:])
+            f.writelines(user_names)
 
 
 
