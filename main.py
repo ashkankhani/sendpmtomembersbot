@@ -107,6 +107,7 @@ def send_message_to_members(session_list,text,max_send):
                     except BadRequest as e:
                         if(e.ID == 'PEER_FLOOD'):
                             print(f'accounte {session} report shod!')
+                            break
                     except FloodWait as e:
                         sleep_time = e.x
                         print(f'{sleep_time} sanie esterahat baraye accounte {session}...')
