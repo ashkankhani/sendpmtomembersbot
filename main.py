@@ -90,11 +90,14 @@ def join_chat(session_list,link):
 
 def send_message_to_members(session_list,text,max_send):
     with open('usernames.txt' , 'r+') as f:
-        user_names = f.readlines()
         for session in session_list:
+            user_names = f.readlines()
+            b = len(user_names) #==>mahdoode
+            if(max_send < b):
+                b = max_send    #tanzim ro maximum
             with Client(session) as app:
-                tedad = 0 #==> tedade bedon=one error
-                for i in range(0,max_send):
+                tedad = 0 #==> tedade bedon error
+                for i in range(0,b):
                     user_name = user_names[i].replace('\n' , '')
                     app.send_message(chat_id = user_name , text = text)
                     tedad += 1
@@ -120,7 +123,7 @@ while(True):
             print('dar join shodan moshkeli vojood darad....\nlotfan barasi konid!')
         else:
             get_group_members(session_list[0] ,group_id)
-    if(gozine=='2'):
+    elif(gozine=='2'):
         send_message_to_members(session_list,TEXT,MAX_SEND_PER_SESSION)
 
 
