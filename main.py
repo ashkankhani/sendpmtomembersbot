@@ -7,10 +7,6 @@ from time import sleep
 #pyrogram.errors.exceptions.bad_request_400.UserAlreadyParticipant: [400 USER_ALREADY_PARTICIPANT]: The user is already a participant of this chat (caused by "messages.ImportChatInvite"
 #pyrogram.errors.exceptions.flood_420.FloodWait [420 FLOOD_WAIT_X]
 
-LINK = 'https://t.me/joinchat/8cEvVi1qCzM2NDVk'
-TEXT = 'سلام'
-MAX_SEND_PER_SESSION = 1
-
 
 
 
@@ -33,7 +29,7 @@ def get_session_list():
 
     return session_list
 
-print(get_session_list())
+
 
 def get_group_members(session,group_id):
     with open('usernames.txt' , 'w') as f:
@@ -126,6 +122,8 @@ def send_message_to_members(session_list,text,max_send):
 
 session_list = get_session_list()
 
+print(f'be pm sender khosh omadid...\nAccounts = {session_list}')
+
 
 while(True):
     gozine = input('''yek gozine entekhab konid:
@@ -133,6 +131,7 @@ while(True):
 2.ersal pm be hame afrad
 ''')
     if(gozine=='1'):
+        LINK = input('linke grouhe morede nazar ra vared konid: ')
         try:
             group_id = join_chat(session_list,LINK)
         except UnboundLocalError:
@@ -140,6 +139,8 @@ while(True):
         else:
             get_group_members(session_list[0] ,group_id)
     elif(gozine=='2'):
+        TEXT = input('matne pm ersali ra vared konid: ')
+        MAX_SEND_PER_SESSION = int(input('tedade pm ersali har account ra vaed konid: '))
         send_message_to_members(session_list,TEXT,MAX_SEND_PER_SESSION)
 
 
